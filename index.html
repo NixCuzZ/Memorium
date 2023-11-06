@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        #container {
+            text-align: center;
+            margin-top: 100px;
+        }
+
+        #title {
+            font-size: 36px;
+            margin-bottom: 20px;
+        }
+
+        #text {
+            font-size: 24px;
+            margin: 20px;
+        }
+
+        #input {
+            font-size: 24px;
+            margin: 20px;
+        }
+
+        #chances {
+            font-size: 24px;
+            margin: 20px;
+        }
+
+        #logo-left {
+            position: absolute;
+            left: 10px;
+            top: 10px;
+            max-width: 200px;
+            max-height: 200px;
+        }
+
+        #logo-right {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            max-width: 200px;
+            max-height: 200px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="container">
+        <img id="logo-left" src="C:\Users\Mateus\Downloads\unibr.png" alt="Logo Esquerda">
+        <img id="logo-right" src="C:\Users\Mateus\Desktop\Memorium\unibr2.png" alt="Logo Direita">
+        <div id="title">Memorium</div>
+        <div id="score">Pontuação: 0</div>
+        <div id="timer">Tempo restante: 2</div>
+        <div id="chances">Tentativas restantes: 3</div>
+        <div id="text">Memorize a sequência de palavras e digite-as abaixo:</div>
+        <div id="game"></div>
+        <input id="input" type="text" onkeydown="checkInput(event)">
+        <button onclick="restartGame()">Reiniciar Jogo</button>
+    </div>
+
+    <script>
+        const words = ["Gato", "Cachorro", "Elefante", "Girafa", "Leão", "Tigre", "Lobo", "Zebra", "Urso", "Macaco"];
+        const gameDiv = document.getElementById("game");
+        const textDiv = document.getElementById("text");
+        const scoreDiv = document.getElementById("score");
+        const timerDiv = document.getElementById("timer");
+        const chancesDiv = document.getElementById("chances");
+        let currentWordIndex = 0;
+        let score = 0;
+        let chances = 3;
+        let isDisplaying = false;
+        let displayInterval;
+        let correctMessageTimeout;
+
+        function displayWords() {
+            if (currentWordIndex < words.length) {
+                gameDiv.innerHTML = words[currentWordIndex];
+                currentWordIndex++;
+                let timeLeft = 2;
+                isDisplaying = true;
+                displayInterval = setInterval(() => {
+                    timeLeft--;
+                    timerDiv.innerHTML = `Tempo restante: ${timeLeft}`;
+                    if (timeLeft <= 0) {
+                        clearInterval(displayInterval);
+                        isDisplaying = false;
+                        clearDisplay();
+                    }
+                }, 1000);
+            } else {
+                gameDiv.innerHTML = "Fim do Jogo!";
+            }
+        }
+
+        function clearDisplay() {
+            gameDiv.innerHTML = "";
+            timerDiv.innerHTML = "Tempo restante: 2";
+        }
+
+        function checkInput(event) {
+            if (event.key === "Enter" && !isDisplaying) {
+                const input = document.getElementById("input").value;
+                if (input.toLowerCase() === words[currentWordIndex - 1].toLowerCase()) {
+                    textDiv.innerHTML = "Correto! Próxima palavra:";
+                    score++;
+                    scoreDiv.innerHTML = `Pontuação: ${score}`;
+                    document.getElementById("input").value = "";
+                    correctMessageTimeout = setTimeout(() => {
+                        textDiv.innerHTML = "Memorize a sequência de palavras e digite-as abaixo:";
+                        displayWords();
+                    }, 1000);
+                } else {
+                    textDiv.innerHTML = "Incorreto! Tente novamente.";
+                    chances--;
+                    chancesDiv.innerHTML = `Tentativas restantes: ${chances}`;
+                    if (chances === 0) {
+                        endGame();
+                    }
+                }
+            }
+        }
+
+        function restartGame() {
+            if (!isDisplaying) {
+                clearInterval(displayInterval);
+                clearTimeout(correctMessageTimeout);
+                chances = 3;
+                chancesDiv.innerHTML = `Tentativas restantes: ${chances}`;
+                score = 0;
+                scoreDiv.innerHTML = `Pontuação: ${score}`;
+                currentWordIndex = 0;
+                displayWords();
+            }
+        }
+
+        function endGame() {
+            gameDiv.innerHTML = "Fim do Jogo! Suas chances acabaram.";
+        }
+
+        displayWords();
+    </script>
+</body>
+
+</html>
